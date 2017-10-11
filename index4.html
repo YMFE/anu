@@ -4,141 +4,112 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width">   
-  <script type='text/javascript' src="./dist/React.js"></script>
- <!-- <script type='text/javascript' src="./test/react.js"></script>
-  <script type='text/javascript' src="./test/react-dom.js"></script>-->
-  <!-- <script src="./test/react-lite.js"></script>-->
-     <script type='text/javascript' src="./lib/babel.js"></script>
-
-
-
-</head>
-
-<body>
-
-    <div>开发者工具</div>
-    <div id='example'></div>
-<pre>
-  ['parent-render', 'blue'],
-  ['getInitialState', 'blue'],
-  ['render', 'dark blue', 'blue'],
-  ['handleHue', 'dark blue', 'blue'],
-  ['parent-handleColor', 'blue'],
-  ['parent-render', 'green'],
-  ['setState-this', 'dark blue', 'blue'],
-  ['setState-args', 'dark blue', 'green'],
-  ['render', 'light green', 'green'],
-  ['after-setState', 'light green', 'green'],
-  ['parent-after-setState', 'green'],
-</pre>
-    <script type='text/babel'>
-    var list = []
-    function logger(){
-      list.push([].slice.call(arguments, 0))
-    }
-     class ParentComponent extends React.Component {
-          state = {color: 'blue'};
+    <script type='text/javascript' src="./lib/shallowCompare.js"></script>
     
-          handleColor = color => {
-            this.props.logger('parent-handleColor', this.state.color);
-            //父方法暂时不处理
-            this.setState({color: color}, function() {
-              this.props.logger('parent-after-setState', this.state.color);
-            });
-          };
-          componentDidUpdate(){
-            console.log('parent did update')
+   <script type='text/javascript' src="./dist/React.js"></script>
+ 
+   <script type='text/javascript' src="./test/react.js"></script>
+  <script type='text/javascript' src="./test/react-dom.js"></script>
+   <!--<script type='text/javascript' src="./test/react-lite.js"></script>-->
+  <!-- <script type='text/javascript' src="./test/react-lite.js"></script>-->
+     <script type='text/javascript' src="./lib/babel.js"></script>
+  
+</head>
+<body>
+    
+        <div>开发者工具</div>
+        <pre>
+                "static render",
+                "static did mount",
+                "instance 111",
+                "static will update",
+                "static render",
+                "null 111",
+                "static did update",
+                "instance 222",
+        </pre>
+        <div id='example'></div>
+    
+      
+  <script type='text/babel'>
+   
+     
+      var container = document.getElementById("example")
+     // var PropTypes = React.PropTypes
+      if(!window.ReactDOM){
+        window.ReactDOM = window.React
+      }
+      var expect = function(a) {
+          return {
+              toBe: function(b) {
+                  console.log(a, b, a === b)
+              }
           }
+      }
+
+      var list = [];
+      class Static extends React.Component {
           componentDidMount(){
-            console.log('parent did mount')
+              list.push("static did mount");
+          }
+          componentWillUpdate(){
+              list.push("static will update");
+          }
+          componentDidUpdate(){
+              list.push("static did update");
           }
           render() {
-            console.log('父组件 render')
-            this.props.logger('parent-render', this.state.color);
-            return (
-              <ChildComponent
-                logger={this.props.logger}
-                color={this.state.color}
-                onSelectColor={this.handleColor}
-              />
-            );
+              list.push("static render");
+              return <div>{this.props.children}</div>;
           }
-        }
-
-    class ChildComponent extends React.Component {
-      constructor(props) {
-        super(props);
-        props.logger('getInitialState', props.color);
-        this.state = {hue: 'dark ' + props.color};
       }
-      componentDidUpdate(){
-        console.log('child did update')
-      }
-      componentDidMount(){
-         console.log('child did mount')
-      }
-      handleHue = (shade, color) => {
-        console.log('发生了点击事件')
-        this.props.logger('handleHue', this.state.hue, this.props.color);
-        //子组件调用父组件的setState
-        this.props.onSelectColor(color);
-        console.log('子组件setState')
-        this.setState(
-          function(state, props) {
-            this.props.logger(
-              'setState-this',
-              this.state.hue,
-              this.props.color,
-            );
-            this.props.logger('setState-args', state.hue, props.color);
-            return {hue: shade + ' ' + props.color};
-          },
-          function() {
-            this.props.logger(
-              'after-setState',
-              this.state.hue,
-              this.props.color,
-            );
-          },
-        );
-      };
 
-      render() {
-        console.log('子组件 render')
-        this.props.logger('render', this.state.hue, this.props.color);
-        return (
-          <div>
-            <button onClick={this.handleHue.bind(this, 'dark', 'blue')}>
-              Dark Blue
-            </button>
-            <button onClick={this.handleHue.bind(this, 'light', 'blue')}>
-              Light Blue
-            </button>
-            <button onClick={this.handleHue.bind(this, 'dark', 'green')}>
-              Dark Green
-            </button>
-            <button onClick={this.handleHue.bind(this, 'light', 'green')}>
-              Light Green
-            </button>
-          </div>
-        );
+      class Component extends React.Component {
+          render() {
+              if (this.props.flipped) {
+                  return (
+                      <div>
+                          <Static ref={function(b){
+                              list.push(b === null ? "null 222":"instance 222");
+                          }}>
+                         B
+                          </Static>
+                    
+                      </div>
+                  );
+              } else {
+                  return (
+                      <div>
+                          <Static ref={function(a){
+                              list.push(a === null ? "null 111":"instance 111");
+                          }} >
+                          A
+                          </Static>
+                      </div>
+                  );
+              }
+          }
       }
-    }
 
-    var container = document.createElement('div');
-    document.body.appendChild(container);
-    void ReactDOM.render(<ParentComponent logger={logger} />, container);
+      var container = document.createElement("div");
+      ReactDOM.render(<Component flipped={false} />, container);
+ 
+      ReactDOM.render(<Component flipped={true} />, container);
+     /* expect(list).toEqual([
+          "static render",
+          "static did mount",
+          "instance 111",
+          "static will update",
+          "static render",
+          "null 111",
+          "static did update",
+          "instance 222",
+      ]);*/
+      console.log(list.join("\n"))
 
-  if(!window.ReactDOM){
-    window.ReactDOM = window.React
-  }
-  console.log(container)
-  console.log(container.childNodes[0].childNodes[3])
-container.childNodes[0].childNodes[3].click()
-console.log(list)
-    //var s = ReactDOM.render(<App />,  document.getElementById('example'))
-      
-       </script>
+
+    </script>
+  
 </body>
-
-</html>
+    
+ </html>

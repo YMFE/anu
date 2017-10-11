@@ -1,4 +1,4 @@
-import { oneObject, recyclables, typeNumber } from "./util";
+import { recyclables, typeNumber } from "./util";
 
 //用于后端的元素节点
 export function DOMElement(type) {
@@ -56,7 +56,7 @@ export var win = w;
 export var document = w.document || fakeDoc;
 var isStandard = "textContent" in document;
 var fragment = document.createDocumentFragment();
-function emptyElement(node) {
+export function emptyElement(node) {
     var child;
     while ((child = node.firstChild)) {
         emptyElement(child);

@@ -9,7 +9,7 @@ import { cloneElement } from "./cloneElement";
 import { PureComponent } from "./PureComponent";
 import { createElement } from "./createElement";
 
-import { render,pendingRefs, findDOMNode, isValidElement, unmountComponentAtNode, unstable_renderSubtreeIntoContainer } from "./diff";
+import { render,createPortal, findDOMNode, isValidElement, unmountComponentAtNode, unstable_renderSubtreeIntoContainer } from "./diff";
 
 var React = {
     version: "VERSION",
@@ -17,6 +17,7 @@ var React = {
     options,
     PropTypes,
     Children, //为了react-redux
+    createPortal,
     Component,
     eventSystem,
     findDOMNode,
